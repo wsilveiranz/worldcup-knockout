@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { ROUND_NAME } from '../lib/model.js';
 import { formatDate, formatTime, tzAbbrev, kickoffSortKey, DEFAULT_TZ } from '../lib/time.js';
 
@@ -67,6 +67,35 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
     return list.sort((a, b) => kickoffSortKey(a.kickoffUtc) - kickoffSortKey(b.kickoffUtc));
   }, [resolved, teamsById, thirdPlace]);
 
+  // The most recently completed match as of now — we highlight it and scroll
+  // the list to it on load, so the user lands on the latest finished result.
+  // "Completed" = kickoff + ~2h (full match incl. stoppage) is in the past.
+  const targetId = useMemo(() => {
+    const now = Date.now();
+    const MATCH_MS = 2 * 60 * 60 * 1000;
+    let pick = null;
+    for (const m of rows) {
+      const t = m.kickoffUtc ? new Date(m.kickoffUtc).getTime() : NaN;
+      if (!Number.isNaN(t) && t + MATCH_MS <= now) pick = m.id; // rows sorted ascending → keep last
+    }
+    return pick;
+  }, [rows]);
+
+  const scrollRef = useRef(null);
+  const didScroll = useRef(false);
+
+  useEffect(() => {
+    if (didScroll.current || !targetId) return;
+    const cont = scrollRef.current;
+    const el = cont?.querySelector(`tr[data-id="${CSS.escape(targetId)}"]`);
+    if (!cont || !el) return;
+    const headH = cont.querySelector('thead')?.offsetHeight ?? 0;
+    const top =
+      el.getBoundingClientRect().top - cont.getBoundingClientRect().top + cont.scrollTop - headH;
+    cont.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+    didScroll.current = true;
+  }, [targetId]);
+
   return (
     <aside className="schedule">
       <div className="schedule-head">
@@ -75,7 +104,7 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
           All times in {tzAbbrev(tz)} · {ROUND_NAME.R32}→{ROUND_NAME.F}
         </span>
       </div>
-      <div className="schedule-scroll">
+      <div className="schedule-scroll" ref={scrollRef}>
         <table className="schedule-table">
           <colgroup>
             <col className="col-date" />
@@ -93,7 +122,11 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
           </thead>
           <tbody>
             {rows.map((m) => (
-              <tr key={m.id} className={`row-${m.status}`}>
+              <tr
+                key={m.id}
+                data-id={m.id}
+                className={`row-${m.status}${m.id === targetId ? ' row-latest' : ''}`}
+              >
                 <td className="c-date">
                   <span className={`round-badge rb-${m.round}`}>{ROUND_SHORT[m.round]}</span>
                   {formatDate(m.kickoffUtc, tz)}
