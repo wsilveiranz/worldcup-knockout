@@ -27,22 +27,42 @@ export default function App() {
         setMatches(live);
         setLastUpdated(Date.now());
         setUsingFallback(false);
-      } else {
-        setUsingFallback(true);
+        return live.some((m) => m.status === 'live');
       }
+      setUsingFallback(true);
     } catch (e) {
       setError(e.message || 'failed');
       setUsingFallback(true);
     } finally {
       setLoading(false);
     }
+    return false;
   }, []);
 
   useEffect(() => {
-    refresh();
-    // Auto-refresh live results every 30s, so we're at most ~30s behind a goal.
-    const id = setInterval(refresh, 30_000);
-    return () => clearInterval(id);
+    let timer;
+    let cancelled = false;
+
+    // Milliseconds remaining until the next top of the hour (xx:00:00).
+    const msToTopOfHour = () => {
+      const now = new Date();
+      return (60 - now.getMinutes()) * 60_000 - now.getSeconds() * 1000 - now.getMilliseconds();
+    };
+
+    const tick = async () => {
+      const hasLive = await refresh();
+      if (cancelled) return;
+      // While a game is live, poll every 30s so we're at most ~30s behind a goal.
+      // When nothing is live, wake at the top of the hour to catch a new kickoff
+      // and highlight it, even if the page has been left open.
+      timer = setTimeout(tick, hasLive ? 30_000 : msToTopOfHour());
+    };
+
+    tick();
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [refresh]);
 
   const model = useMemo(() => buildModel(matches), [matches]);
