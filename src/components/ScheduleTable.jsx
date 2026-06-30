@@ -67,18 +67,20 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
     return list.sort((a, b) => kickoffSortKey(a.kickoffUtc) - kickoffSortKey(b.kickoffUtc));
   }, [resolved, teamsById, thirdPlace]);
 
-  // The most recently completed match as of now — we highlight it and scroll
-  // the list to it on load, so the user lands on the latest finished result.
-  // "Completed" = kickoff + ~2h (full match incl. stoppage) is in the past.
+  // The match to highlight and scroll to on load. We prefer a match that is
+  // currently in progress (live) so the user lands on the action; otherwise we
+  // fall back to the most recently completed match (kickoff + ~2h in the past).
   const targetId = useMemo(() => {
     const now = Date.now();
     const MATCH_MS = 2 * 60 * 60 * 1000;
-    let pick = null;
+    let live = null;
+    let completed = null;
     for (const m of rows) {
+      if (m.status === 'live') live = m.id; // rows sorted ascending → keep last live
       const t = m.kickoffUtc ? new Date(m.kickoffUtc).getTime() : NaN;
-      if (!Number.isNaN(t) && t + MATCH_MS <= now) pick = m.id; // rows sorted ascending → keep last
+      if (!Number.isNaN(t) && t + MATCH_MS <= now) completed = m.id;
     }
-    return pick;
+    return live ?? completed;
   }, [rows]);
 
   const scrollRef = useRef(null);
