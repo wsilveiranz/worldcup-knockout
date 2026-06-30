@@ -1,0 +1,20 @@
+{
+  "name": "worldcup-knockout",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "FIFA World Cup 2026 Knockout Phase — interactive circular bracket with live results and what-if scenarios.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.0"
+  }
+}

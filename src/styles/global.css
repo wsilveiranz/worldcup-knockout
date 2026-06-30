@@ -1,0 +1,440 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #11151f;
+  --panel-2: #161b27;
+  --line: #232a39;
+  --text: #e7ebf3;
+  --muted: #8b93a7;
+  --accent: #4f7cff;
+  --accent-2: #7c9bff;
+  --gold: #ffce54;
+  --win: #3ad29f;
+  --live: #ff5a5a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Header ---------- */
+.app-header {
+  padding: 22px 28px 6px;
+}
+
+.title-block h1 {
+  font-size: 26px;
+  line-height: 1.12;
+  margin: 0 0 10px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.subtitle {
+  color: var(--muted);
+  max-width: 460px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+
+/* ---------- Controls ---------- */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.controls-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #1d2433;
+  border-color: #2c3547;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+
+.dot.ok {
+  background: var(--win);
+}
+.dot.err {
+  background: var(--live);
+}
+.dot.live {
+  background: var(--gold);
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.champ-line {
+  font-size: 13.5px;
+  color: var(--gold);
+}
+
+/* ---------- Main layout ---------- */
+.app-main {
+  flex: 1;
+  display: flex;
+  gap: 18px;
+  padding: 8px 24px 24px;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.bracket-area {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.bracket-svg {
+  width: 100%;
+  max-width: 82vh;
+  height: auto;
+  display: block;
+  user-select: none;
+}
+
+/* ---------- Bracket nodes ---------- */
+.node-empty {
+  fill: #10151f;
+  stroke: #262d3c;
+  stroke-width: 1;
+}
+
+/* Small junction marker for undecided inner slots. */
+.node-dot {
+  fill: #4a5469;
+  stroke: #0b0e14;
+  stroke-width: 1.5;
+}
+
+.flag-bg {
+  fill: #0b0e14;
+}
+
+.flag-ring {
+  stroke: #2a3243;
+  stroke-width: 1.5;
+}
+
+.flag-node {
+  transition: opacity 0.2s;
+}
+
+.flag-node.clickable {
+  cursor: pointer;
+}
+
+.flag-node.clickable:hover .flag-ring {
+  stroke: var(--accent-2);
+  stroke-width: 2.5;
+}
+
+.flag-node.state-advanced .flag-ring {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.flag-node.state-whatif .flag-ring {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.flag-node.state-locked .flag-ring {
+  stroke: var(--win);
+  stroke-width: 3;
+}
+
+.flag-node.state-champion .flag-ring {
+  stroke: var(--gold);
+  stroke-width: 4;
+}
+
+.flag-node.state-eliminated {
+  opacity: 0.28;
+}
+
+.connector {
+  fill: none;
+  stroke: #2a3140;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
+.connector.active {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.connector.locked {
+  stroke: var(--win);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.champion-glow {
+  fill: rgba(255, 206, 84, 0.12);
+}
+
+/* ---------- Schedule sidebar ---------- */
+.schedule {
+  flex: 0 0 340px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+.schedule-head {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.schedule-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.tz-note {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.schedule-scroll {
+  overflow-y: auto;
+}
+
+.schedule-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.schedule-table col.col-date {
+  width: 104px;
+}
+.schedule-table col.col-time {
+  width: 40px;
+}
+.schedule-table col.col-result {
+  width: 56px;
+}
+
+.schedule-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel-2);
+  color: var(--muted);
+  text-align: left;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.schedule-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1a2030;
+  vertical-align: middle;
+}
+
+.row-live {
+  background: rgba(255, 90, 90, 0.06);
+}
+.row-finished {
+  opacity: 0.82;
+}
+
+.c-date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+}
+
+.round-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-right: 5px;
+  background: #222b3c;
+  color: #aab4c8;
+}
+.rb-F {
+  background: #5a4a18;
+  color: var(--gold);
+}
+.rb-SF {
+  background: #2a3a52;
+  color: var(--accent-2);
+}
+
+.c-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sched-team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.sched-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sched-team.tbd {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.sched-flag {
+  width: 18px;
+  height: 13px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex: none;
+}
+
+.vs {
+  color: var(--muted);
+  font-size: 10px;
+  margin: 1px 0;
+}
+
+.sched-result {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.sched-result .pens {
+  font-weight: 500;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.sched-result.scheduled {
+  color: var(--muted);
+  font-weight: 400;
+}
+.sched-result.final {
+  color: var(--text);
+}
+.sched-result.live {
+  color: var(--live);
+}
+.sched-result.live em {
+  font-style: normal;
+  font-size: 9px;
+  background: var(--live);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 3px;
+}
+
+/* ---------- Footer ---------- */
+.app-footer {
+  padding: 10px 28px 18px;
+  color: #555f73;
+  font-size: 11.5px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .app-main {
+    flex-direction: column;
+  }
+  .schedule {
+    flex: none;
+    width: 100%;
+    max-height: 420px;
+  }
+}
