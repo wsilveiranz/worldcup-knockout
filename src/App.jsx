@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import fallbackData from './data/fifa-2026.json';
 import { fetchFifaMatches } from './lib/fifa.js';
 import { buildModel, resolveModel } from './lib/model.js';
+import { DEFAULT_TZ } from './lib/time.js';
 import CircularBracket from './components/CircularBracket.jsx';
 import ScheduleTable from './components/ScheduleTable.jsx';
-import Controls from './components/Controls.jsx';
+import { Controls, StatusLine } from './components/Controls.jsx';
 
 export default function App() {
   // Start from the bundled harvested FIFA snapshot; replace with live data on load.
@@ -14,6 +15,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [usingFallback, setUsingFallback] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [tz, setTz] = useState(DEFAULT_TZ);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -67,26 +69,37 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="title-block">
-          <h1>
-            World Cup 2026
-            <br />
-            Knockout Phase
-          </h1>
-          <p className="subtitle">
-            Interactive bracket with live FIFA results &amp; what-if scenarios. Click any team
-            in an undecided match to advance it; finished matches are locked.
-          </p>
+        <h1 className="app-title">
+          World Cup 2026
+          <br />
+          Knockout Phase
+        </h1>
+
+        <div className="header-actions">
           <Controls
+            loading={loading}
+            whatIfCount={whatIfCount}
+            tz={tz}
+            onTzChange={setTz}
+            onRefresh={refresh}
+            onReset={resetWhatIf}
+          />
+        </div>
+
+        <p className="subtitle">
+          Interactive bracket with live FIFA results &amp; what-if scenarios. Click any team in
+          an undecided match to advance it; finished matches are locked.
+        </p>
+
+        <div className="header-status">
+          <StatusLine
             loading={loading}
             error={error}
             usingFallback={usingFallback}
             lastUpdated={lastUpdated}
             generatedAt={fallbackData.generatedAt}
-            whatIfCount={whatIfCount}
             championTeam={championTeam}
-            onRefresh={refresh}
-            onReset={resetWhatIf}
+            tz={tz}
           />
         </div>
       </header>
@@ -95,7 +108,7 @@ export default function App() {
         <section className="bracket-area">
           <CircularBracket model={model} resolved={resolved} onAdvance={advance} />
         </section>
-        <ScheduleTable model={model} resolved={resolved} />
+        <ScheduleTable model={model} resolved={resolved} tz={tz} />
       </main>
 
       <footer className="app-footer">

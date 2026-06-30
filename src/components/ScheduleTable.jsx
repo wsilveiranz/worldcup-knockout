@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ROUND_NAME } from '../lib/model.js';
-import { formatNztDate, formatNztTime, kickoffSortKey } from '../lib/time.js';
+import { formatDate, formatTime, tzAbbrev, kickoffSortKey, DEFAULT_TZ } from '../lib/time.js';
 
 const ROUND_SHORT = { R32: 'R32', R16: 'R16', QF: 'QF', SF: 'SF', F: 'Final', '3P': '3rd' };
 
@@ -39,7 +39,7 @@ function ResultCell({ m }) {
   return <span className="sched-result scheduled">—</span>;
 }
 
-export default function ScheduleTable({ resolved, model }) {
+export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
   const { teamsById, thirdPlace } = model;
 
   const rows = useMemo(() => {
@@ -71,7 +71,9 @@ export default function ScheduleTable({ resolved, model }) {
     <aside className="schedule">
       <div className="schedule-head">
         <h2>Match Schedule</h2>
-        <span className="tz-note">All times in NZT · {ROUND_NAME.R32}→{ROUND_NAME.F}</span>
+        <span className="tz-note">
+          All times in {tzAbbrev(tz)} · {ROUND_NAME.R32}→{ROUND_NAME.F}
+        </span>
       </div>
       <div className="schedule-scroll">
         <table className="schedule-table">
@@ -94,9 +96,9 @@ export default function ScheduleTable({ resolved, model }) {
               <tr key={m.id} className={`row-${m.status}`}>
                 <td className="c-date">
                   <span className={`round-badge rb-${m.round}`}>{ROUND_SHORT[m.round]}</span>
-                  {formatNztDate(m.kickoffUtc)}
+                  {formatDate(m.kickoffUtc, tz)}
                 </td>
-                <td className="c-time">{formatNztTime(m.kickoffUtc).replace(' NZT', '')}</td>
+                <td className="c-time">{formatTime(m.kickoffUtc, tz)}</td>
                 <td className="c-match">
                   <TeamCell team={m.homeTeam} />
                   <span className="vs">v</span>
