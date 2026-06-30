@@ -2,22 +2,23 @@ import React, { useMemo } from 'react';
 import { layout, NODE_DIAM } from '../lib/geometry.js';
 import Connectors from './Connectors.jsx';
 import TeamNode from './TeamNode.jsx';
+import trophyImg from '../assets/fifa_worldcup.png';
 
 const SIZE = 760;
 const INNER_ROUNDS = ['R32', 'R16', 'QF', 'SF']; // F winner is the centre champion
 
 function Trophy({ cx, cy, scale = 1 }) {
-  const s = 70 * scale;
+  const s = 80 * scale;
   return (
-    <g className="trophy" transform={`translate(${cx - s / 2}, ${cy - s / 2}) scale(${s / 64})`}>
-      <path
-        d="M20 6h24v6c0 1 4 1 6 1 3 0 6 2 6 6 0 6-6 10-12 11-2 4-5 6-8 7l-1 8h6v4H23v-4h6l-1-8c-3-1-6-3-8-7C14 36 8 32 8 25c0-4 3-6 6-6 2 0 6 0 6-1V6z M14 23c0 4 3 6 6 8-1-3-1-7-1-11-3 0-5 1-5 3z M50 23c0-2-2-3-5-3 0 4 0 8-1 11 3-2 6-4 6-8z"
-        fill="#cfd6e4"
-        stroke="#8b93a7"
-        strokeWidth="0.6"
-      />
-      <rect x="18" y="54" width="28" height="4" rx="1" fill="#cfd6e4" />
-    </g>
+    <image
+      className="trophy"
+      href={trophyImg}
+      x={cx - s / 2}
+      y={cy - s / 2}
+      width={s}
+      height={s}
+      preserveAspectRatio="xMidYMid meet"
+    />
   );
 }
 
