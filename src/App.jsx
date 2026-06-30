@@ -40,6 +40,9 @@ export default function App() {
 
   useEffect(() => {
     refresh();
+    // Auto-refresh live results every 30s, so we're at most ~30s behind a goal.
+    const id = setInterval(refresh, 30_000);
+    return () => clearInterval(id);
   }, [refresh]);
 
   const model = useMemo(() => buildModel(matches), [matches]);
