@@ -69,25 +69,26 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
 
   // The match to highlight and scroll to on load. We prefer a match that is
   // currently in progress (live) so the user lands on the action; otherwise we
-  // fall back to the most recently completed match (kickoff + ~2h in the past).
+  // fall back to the most recently finished match, which keeps the last score in
+  // view with the next upcoming match (and its date) directly below it.
   const targetId = useMemo(() => {
-    const now = Date.now();
-    const MATCH_MS = 2 * 60 * 60 * 1000;
     let live = null;
-    let completed = null;
+    let finished = null;
     for (const m of rows) {
-      if (m.status === 'live') live = m.id; // rows sorted ascending → keep last live
-      const t = m.kickoffUtc ? new Date(m.kickoffUtc).getTime() : NaN;
-      if (!Number.isNaN(t) && t + MATCH_MS <= now) completed = m.id;
+      // rows are sorted ascending by kickoff → keep the last match of each kind.
+      if (m.status === 'live') live = m.id;
+      if (m.status === 'finished') finished = m.id;
     }
-    return live ?? completed;
+    return live ?? finished;
   }, [rows]);
 
   const scrollRef = useRef(null);
-  const didScroll = useRef(false);
+  const scrolledTo = useRef(null);
 
   useEffect(() => {
-    if (didScroll.current || !targetId) return;
+    // Scroll on first load and again whenever the target changes (e.g. a new
+    // game kicks off on a page left open), but not on every periodic refresh.
+    if (!targetId || scrolledTo.current === targetId) return;
     const cont = scrollRef.current;
     const el = cont?.querySelector(`tr[data-id="${CSS.escape(targetId)}"]`);
     if (!cont || !el) return;
@@ -95,7 +96,7 @@ export default function ScheduleTable({ resolved, model, tz = DEFAULT_TZ }) {
     const top =
       el.getBoundingClientRect().top - cont.getBoundingClientRect().top + cont.scrollTop - headH;
     cont.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
-    didScroll.current = true;
+    scrolledTo.current = targetId;
   }, [targetId]);
 
   return (
