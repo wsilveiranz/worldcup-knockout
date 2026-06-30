@@ -27,7 +27,10 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      # Use `npm install` (not `npm ci`): a lockfile generated on Windows can
+      # omit Linux-only optional deps (@rollup/rollup-linux-*, @emnapi/*),
+      # which would make the strict `npm ci` sync check fail on the runner.
+      - run: npm install --no-audit --no-fund
 
       # vite.config.js reads GITHUB_REPOSITORY to set `base` to "/<repo>/".
       - run: npm run build
