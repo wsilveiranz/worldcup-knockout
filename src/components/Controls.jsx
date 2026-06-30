@@ -3,12 +3,18 @@ import { TIMEZONES, formatTime, tzAbbrev } from '../lib/time.js';
 
 // Top-right action cluster: timezone picker + refresh / reset buttons.
 export function Controls({ loading, whatIfCount, tz, onTzChange, onRefresh, onReset }) {
+  // Ensure the active zone is always selectable — if the visitor's detected
+  // local zone isn't one of the curated entries, surface it as "Local — City".
+  const options = TIMEZONES.some((z) => z.id === tz)
+    ? TIMEZONES
+    : [{ id: tz, label: `Local — ${tz.split('/').pop().replace(/_/g, ' ')}` }, ...TIMEZONES];
+
   return (
     <div className="controls">
       <label className="tz-select" title="Show kickoff times in this timezone">
         <span className="tz-select-label">Timezone</span>
         <select value={tz} onChange={(e) => onTzChange(e.target.value)}>
-          {TIMEZONES.map((z) => (
+          {options.map((z) => (
             <option key={z.id} value={z.id}>
               {z.label} ({tzAbbrev(z.id)})
             </option>

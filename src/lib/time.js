@@ -4,6 +4,15 @@
 
 export const DEFAULT_TZ = 'Pacific/Auckland';
 
+// The browser's local IANA timezone (e.g. 'Europe/London'), or NZ as fallback.
+export function localZone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || DEFAULT_TZ;
+  } catch {
+    return DEFAULT_TZ;
+  }
+}
+
 // Curated list for the timezone selector (label + IANA zone id).
 export const TIMEZONES = [
   { id: 'Pacific/Auckland', label: 'New Zealand' },

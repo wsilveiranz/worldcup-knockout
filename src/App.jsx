@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import fallbackData from './data/fifa-2026.json';
 import { fetchFifaMatches } from './lib/fifa.js';
 import { buildModel, resolveModel } from './lib/model.js';
-import { DEFAULT_TZ } from './lib/time.js';
+import { localZone } from './lib/time.js';
 import CircularBracket from './components/CircularBracket.jsx';
 import ScheduleTable from './components/ScheduleTable.jsx';
 import { Controls, StatusLine } from './components/Controls.jsx';
@@ -15,7 +15,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [usingFallback, setUsingFallback] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [tz, setTz] = useState(DEFAULT_TZ);
+  // Default kickoff times to the visitor's own timezone (fall back to NZ).
+  const [tz, setTz] = useState(() => localZone());
 
   const refresh = useCallback(async () => {
     setLoading(true);
