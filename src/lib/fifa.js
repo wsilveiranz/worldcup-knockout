@@ -92,7 +92,13 @@ export function normalizeFifa(results) {
 
 // Browser/Node live fetch. Throws on network failure so callers can fall back.
 export async function fetchFifaMatches() {
-  const res = await fetch(MATCHES_URL, { headers: { Accept: 'application/json' } });
+  // Cache-bust so refreshes always get the latest data (e.g. a delayed kickoff
+  // or updated score) instead of a stale browser/CDN-cached response.
+  const url = `${MATCHES_URL}&_=${Date.now()}`;
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+  });
   if (!res.ok) throw new Error(`FIFA API HTTP ${res.status}`);
   const data = await res.json();
   return normalizeFifa(data.Results);
